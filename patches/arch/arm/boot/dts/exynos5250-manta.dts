@@ -7,6 +7,9 @@
  */
 
 /dts-v1/;
+#include <dt-bindings/clock/maxim,max77686.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include "exynos5250.dtsi"
 
 / {
@@ -24,5 +27,289 @@
 	chosen {
 		// bootargs = "";
 		linux,usable-memory-range = <0x9 0x40000000 0x0 0x10000000>;
-	};    
+	};
+	
+	panel_reg: fixed-regulator-panel {
+		compatible = "regulator-fixed";
+		regulator-name = "panel-supply";
+	};
+    
+   backlight_reg: fixed-regulator-backlight {
+		compatible = "regulator-fixed";
+		regulator-name = "backlight-supply";
+	};
+     backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 0 1000000 0>;
+		brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
+		default-brightness-level = <6>;
+        enable-gpios = <&gpg0 5 GPIO_ACTIVE_HIGH>;
+        post-pwm-on-delay-ms = <97>;
+        pwm-off-delay-ms = <10>;
+        power-supply = <&backlight_reg>;
+		pinctrl-0 = <&pwm0_out>;
+		pinctrl-names = "default";
+	};
+
+	panel: panel {
+		compatible = "samsung,lsn122dl01-c01";
+		backlight = <&backlight>;
+        enable-gpios = <&gph1 7 GPIO_ACTIVE_HIGH>;
+        power-supply = <&panel_reg>;
+        
+        panel-timing {
+			clock-frequency = <60000>;
+			hactive = <2560>;
+			vactive = <1600>;
+			hfront-porch = <48>;
+			hback-porch = <80>;
+			hsync-len = <32>;
+			vback-porch = <37>;
+			vfront-porch = <3>;
+			vsync-len = <6>;
+		};
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dp_out>;
+			};
+		};
+	};
 };
+
+
+&cpu0 {
+	cpu0-supply = <&buck2_reg>;
+};
+
+&dp {
+	status = "okay";
+	samsung,color-space = <0>;
+	samsung,color-depth = <1>;
+	samsung,link-rate = <0x0a>;
+	samsung,lane-count = <4>;
+    
+    ports {
+		port {
+			dp_out: endpoint {
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+    
+};
+
+&fimd {
+	status = "okay";
+};
+
+&hdmi {
+	status = "okay";
+	ddc = <&i2c_0>;
+	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
+    pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_hpd>;
+	vdd-supply = <&ldo8_reg>;
+	vdd_osc-supply = <&ldo10_reg>;
+	vdd_pll-supply = <&ldo8_reg>;
+};
+
+&i2c_0 {
+	status = "okay";
+	/* used by HDMI DDC */
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <65000>;
+};
+
+&i2c_5 {
+	status = "okay";
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <378000>;
+
+	max77686: pmic@9 {
+		compatible = "maxim,max77686";
+		reg = <0x09>;
+		interrupt-parent = <&gpx0>;
+		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&max77686_irq>;
+		#clock-cells = <1>;
+		wakeup-source;
+
+		voltage-regulators {
+
+			ldo3_reg: LDO3 {
+				regulator-name = "VCC_1.8V_AP";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+				regulator-boot-on;               
+			};
+
+			ldo8_reg: LDO8 {
+				regulator-name = "VMIPI_1.0V";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+            
+            ldo9_reg: LDO9 {
+				regulator-name = "TOUCH_VDD_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+
+			ldo10_reg: LDO10 {
+				regulator-name = "VMIPI_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			ldo12_reg: LDO12 {
+				regulator-name = "VUOTG_3.0V";
+				regulator-min-microvolt = <3000000>;
+				regulator-max-microvolt = <3000000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			ldo15_reg: LDO15 {
+				regulator-name = "VHSIC_1.0V";
+				regulator-min-microvolt = <1000000>;
+				regulator-max-microvolt = <1000000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			ldo16_reg: LDO16 {
+				regulator-name = "VHSIC_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+            
+            ldo17_reg: LDO17 {
+				regulator-name = "5M_CORE_1.5V";
+				regulator-min-microvolt = <1500000>;
+				regulator-max-microvolt = <1500000>;
+			};
+            
+            ldo18_reg: LDO18 {
+				regulator-name = "CAM_IO_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+            
+            ldo19_reg: LDO19 {
+				regulator-name = "VT_CAM_1.8V";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+            
+            ldo20_reg: LDO20 {
+				regulator-name = "TA_CHECK_1.35V";
+				regulator-min-microvolt = <1350000>;
+				regulator-max-microvolt = <1350000>;
+			};
+
+            ldo23_reg: LDO23 {
+				regulator-name = "TSP_AVDD_2.8V";
+				regulator-min-microvolt = <2800000>;
+				regulator-max-microvolt = <2800000>;
+			};
+            
+            ldo24_reg: LDO24 {
+				regulator-name = "CAM_AF_2.8V";
+				regulator-min-microvolt = <2800000>;
+				regulator-max-microvolt = <2800000>;
+			};
+
+            ldo25_reg: LDO25 {
+				regulator-name = "VADC_3.3V";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+            
+			buck1_reg: BUCK1 {
+				regulator-name = "vdd_mif";
+				regulator-min-microvolt = <950000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck2_reg: BUCK2 {
+				regulator-name = "vdd_arm";
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <1350000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck3_reg: BUCK3 {
+				regulator-name = "vdd_int";
+				regulator-min-microvolt = <900000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			buck4_reg: BUCK4 {
+				regulator-name = "vdd_g3d";
+				regulator-min-microvolt = <850000>;
+				regulator-max-microvolt = <1300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};  
+		};
+	};
+};
+
+&i2c_8 {
+	status = "okay";
+	/* used by HDMI PHY */
+	samsung,i2c-sda-delay = <100>;
+	samsung,i2c-max-bus-freq = <378000>;
+};
+
+&i2s0 {
+	status = "okay";
+};
+
+&mixer {
+	status = "okay";
+};
+
+&mali {
+	status = "okay";
+	mali-supply = <&buck4_reg>;
+};
+
+&rtc {
+	status = "okay";
+	clocks = <&clock CLK_RTC>, <&max77686 MAX77686_CLK_AP>;
+	clock-names = "rtc", "rtc_src";
+};
+
+/*&spi_1 {
+	status = "okay";
+	samsung,spi-src-clk = <0>;
+	num-cs = <1>;
+	cs-gpios = <&gpa2 5 GPIO_ACTIVE_HIGH>;
+};*/
+
+&pinctrl_0 {
+	max77686_irq: max77686-irq-pins {
+		samsung,pins = "gpx0-2";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_F>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+	};
+};
+
