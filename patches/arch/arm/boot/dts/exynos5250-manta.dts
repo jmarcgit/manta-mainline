@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Samsung Nexus 10 tree source
+ *
+ * Copyright (c) 2012 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ */
+
+/dts-v1/;
+#include "exynos5250.dtsi"
+
+/ {
+	model = "Samsung Nexus 10 (manta)";
+	compatible = "samsung,nexus10-manta", "samsung,exynos5250", "samsung,exynos5";
+
+	aliases {
+	};
+
+	memory@40000000 {
+		device_type = "memory";
+		reg = <0x40000000 0x80000000>;
+	};
+
+	chosen {
+		// bootargs = "";
+		linux,usable-memory-range = <0x9 0x40000000 0x0 0x10000000>;
+	};    
+};
