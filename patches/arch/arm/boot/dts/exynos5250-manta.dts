@@ -15,8 +15,6 @@
 / {
 	model = "Samsung Nexus 10 (manta)";
 	compatible = "samsung,nexus10-manta", "samsung,exynos5250", "samsung,exynos5";
-	#address-cells = <1>;
-	#size-cells = <1>;
 	
 	aliases {
 	};
@@ -33,14 +31,17 @@
 
 	panel_reg: fixed-regulator-panel {
 		compatible = "regulator-fixed";
-		regulator-name = "panel-supply";
+		regulator-name = "APS_IN_18V";
+		startup-delay-us = <97000>;
+		gpio = <&gph1 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
 	};
 
 	backlight_reg: fixed-regulator-backlight {
 		compatible = "regulator-fixed";
-		regulator-name = "backlight-supply";
+		regulator-name = "PWM_IN_18V";
 		startup-delay-us = <97000>;
-		gpio = <&gpb2 0 0>;
+		gpio = <&gpb2 0 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
 
@@ -50,8 +51,6 @@
 		brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
 		default-brightness-level = <6>;
 		enable-gpios = <&gpg0 5 GPIO_ACTIVE_HIGH>;
-		post-pwm-on-delay-ms = <10>;
-		pwm-off-delay-ms = <10>;
 		power-supply = <&backlight_reg>;
 		pinctrl-0 = <&pwm0_out>;
 		pinctrl-names = "default";
@@ -62,6 +61,7 @@
 		backlight = <&backlight>;
 		enable-gpios = <&gph1 7 GPIO_ACTIVE_HIGH>;
 		power-supply = <&panel_reg>;
+		no-hpd;
 		
 		panel-timing {
 			clock-frequency = <60000>;
@@ -106,7 +106,7 @@
 &fimd {
 	status = "okay";
 };
-
+/*
 &hdmi {
 	status = "okay";
 	ddc = <&i2c_0>;
@@ -116,7 +116,7 @@
 	vdd-supply = <&ldo8_reg>;
 	vdd_osc-supply = <&ldo10_reg>;
 	vdd_pll-supply = <&ldo8_reg>;
-};
+};*/
 
 &i2c_0 {
 	status = "okay";
