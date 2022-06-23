@@ -21,10 +21,10 @@
 	aliases {
 	};
 
-/*	memory@40000000 {
+	memory@40000000 {
 		device_type = "memory";
 		reg = <0x40000000 0x80000000>;
-	};*/
+	};
 
 	chosen {
 		// bootargs = "";
@@ -39,6 +39,9 @@
 	backlight_reg: fixed-regulator-backlight {
 		compatible = "regulator-fixed";
 		regulator-name = "backlight-supply";
+		startup-delay-us = <97000>;
+		gpio = <&gpb2 0 0>;
+		enable-active-high;
 	};
 
 	backlight: backlight {
@@ -47,7 +50,7 @@
 		brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
 		default-brightness-level = <6>;
 		enable-gpios = <&gpg0 5 GPIO_ACTIVE_HIGH>;
-		post-pwm-on-delay-ms = <97>;
+		post-pwm-on-delay-ms = <10>;
 		pwm-off-delay-ms = <10>;
 		power-supply = <&backlight_reg>;
 		pinctrl-0 = <&pwm0_out>;
@@ -125,7 +128,7 @@
 &i2c_5 {
 	status = "okay";
 	samsung,i2c-sda-delay = <100>;
-	samsung,i2c-max-bus-freq = <378000>;
+	samsung,i2c-max-bus-freq = <65000>;
 
 	max77686: pmic@9 {
 		compatible = "maxim,max77686";
@@ -154,8 +157,8 @@
 				regulator-always-on;
 				regulator-boot-on;
 			};
-            
-            ldo9_reg: LDO9 {
+
+			ldo9_reg: LDO9 {
 				regulator-name = "TOUCH_VDD_1.8V";
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
@@ -276,12 +279,12 @@
 	status = "okay";
 	/* used by HDMI PHY */
 	samsung,i2c-sda-delay = <100>;
-	samsung,i2c-max-bus-freq = <378000>;
+	samsung,i2c-max-bus-freq = <65000>;
 };
 
-&i2s0 {
+/*&i2s0 {
 	status = "okay";
-};
+};*/
 
 &mixer {
 	status = "okay";
