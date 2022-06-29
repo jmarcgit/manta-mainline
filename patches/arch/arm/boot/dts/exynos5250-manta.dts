@@ -33,16 +33,14 @@
 		compatible = "regulator-fixed";
 		regulator-name = "APS_IN_18V";
 		startup-delay-us = <97000>;
-		gpio = <&gph1 6 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
+		gpio = <&gph1 6 GPIO_ACTIVE_LOW>;
 	};
 
 	backlight_reg: fixed-regulator-backlight {
 		compatible = "regulator-fixed";
 		regulator-name = "PWM_IN_18V";
 		startup-delay-us = <97000>;
-		gpio = <&gpb2 0 GPIO_ACTIVE_HIGH>;
-		enable-active-high;
+		gpio = <&gpb2 0 GPIO_ACTIVE_LOW>;
 	};
 
 	backlight: backlight {
@@ -311,6 +309,13 @@
 &pinctrl_0 {
 	max77686_irq: max77686-irq-pins {
 		samsung,pins = "gpx0-2";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_F>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+	};
+
+	power_irq: power-irq-pins {
+		samsung,pins = "gpx2-7";
 		samsung,pin-function = <EXYNOS_PIN_FUNC_F>;
 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
